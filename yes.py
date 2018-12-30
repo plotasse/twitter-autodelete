@@ -48,7 +48,7 @@ def connect_twitter():
 
 def add_tweet(tweet_id, tweet_time):
 	global cur
-	cur.execute("INSERT INTO tweet VALUES (?, datetime(?), 0)", (tweet_id, tweet_time))
+	cur.execute("INSERT INTO tweet (id, time) VALUES (?, datetime(?))", (tweet_id, tweet_time))
 	#print("add %d [%s]" % (tweet_id, tweet_time))
 
 def load_archive(path_archive):

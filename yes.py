@@ -180,13 +180,13 @@ def update_tweets():
 
 def status():
 	cur.execute("SELECT count(*) FROM tweet")
-	print("Known tweets:        %d" % cur.fetchone())
+	print("Known tweets:             %d" % cur.fetchone())
 	cur.execute("SELECT count(*) FROM tweet WHERE removed = 1")
-	print("Tweets removed:      %d" % cur.fetchone())
+	print("Deleted tweets:           %d" % cur.fetchone())
 	cur.execute("SELECT count(*) FROM tweet WHERE removed = 0")
-	print("Tweets not removed:  %d" % cur.fetchone())
+	print("Tweets that still exist:  %d" % cur.fetchone())
 	cur.execute('SELECT count(*) FROM tweet WHERE time < datetime("now", ?) AND removed = 0', (datetime_modifier,))
-	print("Tweets to be removed: %d" % cur.fetchone())
+	print("Tweets to be deleted:     %d" % cur.fetchone())
 
 try:
 	if len(sys.argv) == 3 and sys.argv[1] == "load-archive":

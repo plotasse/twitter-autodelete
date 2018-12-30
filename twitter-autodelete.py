@@ -13,13 +13,19 @@ from zipfile import ZipFile
 from io import TextIOWrapper
 from time import sleep
 
+### CONFIG ###
+
 # number of tweets to be deleted simultaneously
 n_workers = 5
 
 # when do we remove tweets
 datetime_modifier = "-25 day"
 
+# path to data (contains connection information and tweet database)
 path_data = Path('data')
+
+### END CONFIG ###
+
 path_db = path_data / "db.sqlite"
 path_config = path_data / "config.json"
 

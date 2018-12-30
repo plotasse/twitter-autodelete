@@ -26,6 +26,8 @@ p+LiBGIHy9jJIhVxiqj5EF2iC9OSk73q4CjmsGorG1ZpY1LRBQ8krm0nnbvM4NKrcJohts2s2a23
 LEUFxTCmwCQJwFwJwhkNKySSuhJVQcfi7kinChIOznapYA==
 '''
 
+# create directories
+path_data.mkdir(parents=True, exist_ok=True)
 # connect to database
 conn = sqlite3.connect(path_db)
 cur = conn.cursor()

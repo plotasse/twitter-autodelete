@@ -101,8 +101,7 @@ def delete_tweets():
 	try:
 		connect_twitter()
 	except:
-		print("Error connecting to twitter, please check your config or run setup.")
-		return
+		raise RuntimeError("Could not connect to twitter, please check your config or run setup.")
 	stopped = False
 	deleted = []
 	try:
@@ -160,14 +159,13 @@ def update_tweets():
 	page = 1
 	since_id, = cur.fetchone()
 	if since_id is None:
-		print("No tweet in database, please run load-archive first.")
-		return
+		raise RuntimeError("No tweet in database, please run load-archive first.")
 	try:
 		connect_twitter()
 	except:
-		print("Error connecting to twitter, please check your config or run setup.")
-		return
+		raise RuntimeError("Could not connect to twitter, please check your config or run setup.")
 	print("Last tweet ID: %d" % since_id)
+	print("Reading timelines...")
 	tl = twitter.user_timeline(since_id = since_id, page = page)
 	while len(tl) != 0:
 		print("Page %d, tweets to add: %d" % (page, len(tl)))
@@ -179,6 +177,8 @@ def update_tweets():
 	conn.commit()
 
 def status():
+	print()
+	print("-----------------------------------")
 	cur.execute("SELECT count(*) FROM tweet")
 	print("Known tweets:             %d" % cur.fetchone())
 	cur.execute("SELECT count(*) FROM tweet WHERE removed = 1")
@@ -187,6 +187,8 @@ def status():
 	print("Tweets that still exist:  %d" % cur.fetchone())
 	cur.execute('SELECT count(*) FROM tweet WHERE time < datetime("now", ?) AND removed = 0', (datetime_modifier,))
 	print("Tweets to be deleted:     %d" % cur.fetchone())
+	print("-----------------------------------")
+	print()
 
 try:
 	if len(sys.argv) == 3 and sys.argv[1] == "load-archive":
@@ -199,12 +201,21 @@ try:
 		status()
 	elif len(sys.argv) == 2 and sys.argv[1] == "setup":
 		setup()
+	elif len(sys.argv) == 1:
+		status()
+		update_tweets()
+		status()
+		delete_tweets()
+		status()
 	else:
 		print("Usage: %s" % sys.argv[0])
+		print("\t\tsetup")
 		print("\t\tload-archive <filename>")
 		print("\t\tdelete-tweets")
 		print("\t\tupdate-tweets")
 		print("\t\tstatus")
-		print("\t\tsetup")
+		print("If no command is specified, update and delete tweets")
 except KeyboardInterrupt:
 	pass
+except RuntimeError as e:
+	print(e)

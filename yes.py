@@ -95,7 +95,11 @@ def delete_tweets():
 	cur.execute('SELECT * FROM tweet WHERE time < datetime("now", "-25 day")')
 	tweets = cur.fetchall()
 	print("Tweets to delete: %d" % len(tweets))
-	connect_twitter()
+	try:
+		connect_twitter()
+	except:
+		print("Error connecting to twitter, please check your config or run setup.")
+		return
 	stopped = False
 	deleted = []
 	try:

@@ -161,15 +161,15 @@ def setup():
 
 def update_tweets():
 	global conn, cur, twitter
-	cur.execute("SELECT max(id) FROM tweet")
-	page = 1
-	since_id, = cur.fetchone()
-	if since_id is None:
-		raise RuntimeError("No tweet in database, please run load-archive first.")
 	try:
 		connect_twitter()
 	except:
 		raise RuntimeError("Could not connect to twitter, please check your config or run setup.")
+	cur.execute("SELECT max(id) FROM tweet")
+	page = 1
+	since_id, = cur.fetchone()
+	if since_id is None:
+		raise RuntimeError("No tweet in database, please run load-archive.")
 	print("Last tweet ID: %d" % since_id)
 	print("Reading timelines...")
 	tl = twitter.user_timeline(since_id = since_id, page = page)

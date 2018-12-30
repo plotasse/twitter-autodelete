@@ -27,7 +27,7 @@ path_data = Path('data')
 ### END CONFIG ###
 
 path_db = path_data / "db.sqlite"
-path_config = path_data / "config.json"
+path_keys = path_data / "keys.json"
 
 thounk = '''
 QlpoOTFBWSZTWXZztUsAAAZQYXQwQABEQCEAEAAwAM02Ep6JFDQEp6p+qgAEKkaNDToHO87O97gH
@@ -45,11 +45,11 @@ cur.execute('''CREATE TABLE IF NOT EXISTS tweet
 conn.commit()
 
 def connect_twitter():
-	global path_config, twitter
-	with open(path_config) as f:
-		config = json.load(f)
-	auth = tweepy.OAuthHandler(config["ck"], config["cs"])
-	auth.set_access_token(config["at"], config["ats"])
+	global path_keys, twitter
+	with open(path_keys) as f:
+		keys = json.load(f)
+	auth = tweepy.OAuthHandler(keys["ck"], keys["cs"])
+	auth.set_access_token(keys["at"], keys["ats"])
 	twitter = tweepy.API(auth)
 
 def add_tweet(tweet_id, tweet_time):
@@ -107,7 +107,7 @@ def delete_tweets():
 	try:
 		connect_twitter()
 	except:
-		raise RuntimeError("Could not connect to twitter, please check your config or run setup.")
+		raise RuntimeError("Could not connect to twitter, please check keys.json or run setup.")
 	stopped = False
 	deleted = []
 	try:
@@ -130,7 +130,7 @@ def delete_tweets():
 	signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 def setup():
-	global path_config
+	global path_keys
 	print("=== SETUP ===")
 	print()
 	ck = input("Twitter consumer key: ")
@@ -153,9 +153,9 @@ def setup():
 	me = twitter.me()
 	print()
 	print("Identified as: %s @%s" % (me.screen_name, me.name))
-	config = {"ck":ck,"cs":cs,"at":at,"ats":ats}
-	with open(path_config,"w") as f:
-		json.dump(config, f)
+	keys = {"ck":ck,"cs":cs,"at":at,"ats":ats}
+	with open(path_keys,"w") as f:
+		json.dump(keys, f)
 	print()
 	print("Configuration saved !")
 
@@ -164,7 +164,7 @@ def update_tweets():
 	try:
 		connect_twitter()
 	except:
-		raise RuntimeError("Could not connect to twitter, please check your config or run setup.")
+		raise RuntimeError("Could not connect to twitter, please check keys.json or run setup.")
 	cur.execute("SELECT max(id) FROM tweet")
 	page = 1
 	since_id, = cur.fetchone()

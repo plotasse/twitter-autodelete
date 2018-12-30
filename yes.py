@@ -32,7 +32,7 @@ path_data.mkdir(parents=True, exist_ok=True)
 conn = sqlite3.connect(path_db)
 cur = conn.cursor()
 cur.execute('''CREATE TABLE IF NOT EXISTS tweet
-			(id INTEGER PRIMARY KEY, time TEXT)''')
+			(id INTEGER PRIMARY KEY, time TEXT, removed INTEGER DEFAULT 0)''')
 conn.commit()
 
 def connect_twitter():
@@ -45,7 +45,7 @@ def connect_twitter():
 
 def add_tweet(tweet_id, tweet_time):
 	global cur
-	cur.execute("INSERT INTO tweet VALUES (?, datetime(?))", (tweet_id, tweet_time))
+	cur.execute("INSERT INTO tweet VALUES (?, datetime(?), 0)", (tweet_id, tweet_time))
 	#print("add %d [%s]" % (tweet_id, tweet_time))
 
 def load_archive(path_archive):
@@ -92,7 +92,7 @@ def delete_tweet(tweet):
 			return None
 def delete_tweets():
 	global conn, cur, stopped, n_workers
-	cur.execute('SELECT * FROM tweet WHERE time < datetime("now", "-25 day")')
+	cur.execute('SELECT id, time FROM tweet WHERE time < datetime("now", "-25 day") AND removed = 0')
 	tweets = cur.fetchall()
 	print("Tweets to delete: %d" % len(tweets))
 	try:
@@ -117,7 +117,7 @@ def delete_tweets():
 			deleted.append(i)
 	print("Deleted tweets: %d" % len(deleted))
 	print("Updating database...")
-	cur.executemany('DELETE FROM tweet WHERE id = ?', deleted)
+	cur.executemany('UPDATE tweet SET removed = 1 WHERE id = ?', deleted)
 	conn.commit()
 	signal.signal(signal.SIGINT, signal.SIG_DFL)
 

@@ -43,7 +43,7 @@ def connect_twitter():
 	auth.set_access_token(config["at"], config["ats"])
 	twitter = tweepy.API(auth)
 
-def add_tweet(tweed_id, tweet_time):
+def add_tweet(tweet_id, tweet_time):
 	global cur
 	cur.execute("INSERT INTO tweet VALUES (?, datetime(?))", (tweet_id, tweet_time))
 	#print("add %d [%s]" % (tweet_id, tweet_time))

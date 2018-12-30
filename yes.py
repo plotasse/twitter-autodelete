@@ -16,6 +16,9 @@ from time import sleep
 # number of tweets to be deleted simultaneously
 n_workers = 5
 
+# when do we remove tweets
+datetime_modifier = "-25 day"
+
 path_data = Path('data')
 path_db = path_data / "db.sqlite"
 path_config = path_data / "config.json"
@@ -92,7 +95,7 @@ def delete_tweet(tweet):
 			return None
 def delete_tweets():
 	global conn, cur, stopped, n_workers
-	cur.execute('SELECT id, time FROM tweet WHERE time < datetime("now", "-25 day") AND removed = 0')
+	cur.execute('SELECT id, time FROM tweet WHERE time < datetime("now", ?) AND removed = 0', (datetime_modifier,))
 	tweets = cur.fetchall()
 	print("Tweets to delete: %d" % len(tweets))
 	try:

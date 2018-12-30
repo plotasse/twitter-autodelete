@@ -154,18 +154,57 @@ def setup():
 	print()
 	print("Configuration saved !")
 
+def update_tweets():
+	global conn, cur, twitter
+	cur.execute("SELECT max(id) FROM tweet")
+	page = 1
+	since_id, = cur.fetchone()
+	if since_id is None:
+		print("No tweet in database, please run load-archive first.")
+		return
+	try:
+		connect_twitter()
+	except:
+		print("Error connecting to twitter, please check your config or run setup.")
+		return
+	print("Last tweet ID: %d" % since_id)
+	tl = twitter.user_timeline(since_id = since_id, page = page)
+	while len(tl) != 0:
+		print("Page %d, tweets to add: %d" % (page, len(tl)))
+		for t in tl:
+			add_tweet(t.id, t.created_at)
+		page += 1
+		tl = twitter.user_timeline(since_id = since_id, page = page)
+	print("Updating database...")
+	conn.commit()
+
+def status():
+	cur.execute("SELECT count(*) FROM tweet")
+	print("Known tweets:        %d" % cur.fetchone())
+	cur.execute("SELECT count(*) FROM tweet WHERE removed = 1")
+	print("Tweets removed:      %d" % cur.fetchone())
+	cur.execute("SELECT count(*) FROM tweet WHERE removed = 0")
+	print("Tweets not removed:  %d" % cur.fetchone())
+	cur.execute('SELECT count(*) FROM tweet WHERE time < datetime("now", ?) AND removed = 0', (datetime_modifier,))
+	print("Tweets to be removed: %d" % cur.fetchone())
 
 try:
 	if len(sys.argv) == 3 and sys.argv[1] == "load-archive":
 		load_archive(sys.argv[2])
 	elif len(sys.argv) == 2 and sys.argv[1] == "delete-tweets":
 		delete_tweets()
+	elif len(sys.argv) == 2 and sys.argv[1] == "update-tweets":
+		update_tweets()
+	elif len(sys.argv) == 2 and sys.argv[1] == "status":
+		status()
 	elif len(sys.argv) == 2 and sys.argv[1] == "setup":
 		setup()
 	else:
 		print("Usage: %s" % sys.argv[0])
 		print("\t\tload-archive <filename>")
 		print("\t\tdelete-tweets")
+		print("\t\tupdate-tweets")
+		print("\t\tstatus")
 		print("\t\tsetup")
 except KeyboardInterrupt:
 	pass

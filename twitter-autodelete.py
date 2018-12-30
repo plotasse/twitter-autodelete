@@ -55,7 +55,7 @@ def load_archive(path_archive):
 	global conn
 	with ZipFile(path_archive) as archive:
 		with TextIOWrapper(archive.open("data/js/tweet_index.js")) as f:
-			while f.read(1) != "=":
+			while f.read(1) not in ("=",""):
 				pass
 			index = [i["file_name"] for i in json.load(f)]
 		for i in index:
@@ -63,7 +63,7 @@ def load_archive(path_archive):
 			sys.stdout.flush()
 			count = 0
 			with TextIOWrapper(archive.open(i)) as f:
-				while f.read(1) != "=":
+				while f.read(1) not in ("=",""):
 					pass
 				for i in json.load(f):
 					try:

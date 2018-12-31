@@ -30,9 +30,10 @@ path_db = path_data / "db.sqlite"
 path_keys = path_data / "keys.json"
 
 thounk = '''
-QlpoOTFBWSZTWXZztUsAAAZQYXQwQABEQCEAEAAwAM02Ep6JFDQEp6p+qgAEKkaNDToHO87O97gH
-p+LiBGIHy9jJIhVxiqj5EF2iC9OSk73q4CjmsGorG1ZpY1LRBQ8krm0nnbvM4NKrcJohts2s2a23
-LEUFxTCmwCQJwFwJwhkNKySSuhJVQcfi7kinChIOznapYA==
+QlpoOTFBWSZTWetNC1UAABnQYX2wQABEQAEAEAAwATqlQSnokkNAKYAAEmoSanpMjgQOUWuHe7O3
+e9fbgQKZAPAwVC8KFkXEY1llytzbbCNLZjWWjIrLG0sV9gAE/QACVrWihBBErkJEsMquZXpC9w45
+xdcn2ExxN30sCFkTSRFBI4HdtE8cvtDl4epk666gYh+YbSKHSGJItssfULQybukTNcO3Ii1jxPzk
+E1wR6ePSGMFgWrLqsZxDzlS00O0lMkUkKZBZv+LuSKcKEh1poWqg
 '''
 
 # create directories

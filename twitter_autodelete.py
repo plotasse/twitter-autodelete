@@ -196,32 +196,33 @@ def status():
 	print("-----------------------------------")
 	print()
 
-try:
-	if len(sys.argv) == 3 and sys.argv[1] == "load-archive":
-		load_archive(sys.argv[2])
-	elif len(sys.argv) == 2 and sys.argv[1] == "delete-tweets":
-		delete_tweets()
-	elif len(sys.argv) == 2 and sys.argv[1] == "update-tweets":
-		update_tweets()
-	elif len(sys.argv) == 2 and sys.argv[1] == "status":
-		status()
-	elif len(sys.argv) == 2 and sys.argv[1] == "setup":
-		setup()
-	elif len(sys.argv) == 1:
-		status()
-		update_tweets()
-		status()
-		delete_tweets()
-		status()
-	else:
-		print("Usage: %s" % sys.argv[0])
-		print("\t\tsetup")
-		print("\t\tload-archive <filename>")
-		print("\t\tdelete-tweets")
-		print("\t\tupdate-tweets")
-		print("\t\tstatus")
-		print("If no command is specified, update and delete tweets")
-except KeyboardInterrupt:
-	pass
-except RuntimeError as e:
-	print(e)
+if __name__ == "__main__":
+	try:
+		if len(sys.argv) == 3 and sys.argv[1] == "load-archive":
+			load_archive(sys.argv[2])
+		elif len(sys.argv) == 2 and sys.argv[1] == "delete-tweets":
+			delete_tweets()
+		elif len(sys.argv) == 2 and sys.argv[1] == "update-tweets":
+			update_tweets()
+		elif len(sys.argv) == 2 and sys.argv[1] == "status":
+			status()
+		elif len(sys.argv) == 2 and sys.argv[1] == "setup":
+			setup()
+		elif len(sys.argv) == 1:
+			status()
+			update_tweets()
+			status()
+			delete_tweets()
+			status()
+		else:
+			print("Usage: %s" % sys.argv[0])
+			print("\t\tsetup")
+			print("\t\tload-archive <filename>")
+			print("\t\tdelete-tweets")
+			print("\t\tupdate-tweets")
+			print("\t\tstatus")
+			print("If no command is specified, update and delete tweets")
+	except KeyboardInterrupt:
+		pass
+	except RuntimeError as e:
+		print(e)

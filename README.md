@@ -4,7 +4,7 @@
 
 a script to delete tweets after some time
 
-you will need need to install python 3, find twitter api keys and download a tweet archive
+you will need to install python 3, find twitter api keys and download a tweet archive
 
 ## how to install
 

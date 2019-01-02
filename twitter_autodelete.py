@@ -36,6 +36,12 @@ xdcn2ExxN30sCFkTSRFBI4HdtE8cvtDl4epk666gYh+YbSKHSGJItssfULQybukTNcO3Ii1jxPzk
 E1wR6ePSGMFgWrLqsZxDzlS00O0lMkUkKZBZv+LuSKcKEh1poWqg
 '''
 
+# constants for 'removed' column inside database
+S_TO_DELETE = 0
+S_DELETED = 1
+S_TO_KEEP = 2
+S_CANNOT_DELETE = 3
+
 # create directories
 path_data.mkdir(parents=True, exist_ok=True)
 # connect to database
@@ -88,21 +94,24 @@ def delete_tweet(tweet):
 		return None
 	#sleep(1)
 	#print("dummy delete %d [%s]" % (i,t))
-	#return (i,)
+	#return {"id": i, "removed": S_DELETED}
 	try:
 		twitter.destroy_status(i)
 		print("delete %d [%s]: ok" % (i,t))
-		return (i,)
+		return {"id": i, "removed": S_DELETED}
 	except tweepy.error.TweepError as e:
 		if e.api_code == 144:
 			print("delete %d [%s]: already deleted" % (i,t))
-			return (i,)
+			return {"id": i, "removed": S_DELETED}
+		elif e.api_code == 63:
+			print("delete %d [%s]: account suspended, marking as CANNOT_DELETE" % (i,t))
+			return {"id": i, "removed": S_CANNOT_DELETE}
 		else:
-			print("error:", e)
+			print("delete %d [%s]:" % (i,t), e)
 			return None
 def delete_tweets():
 	global conn, cur, stopped, n_workers
-	cur.execute('SELECT id, time FROM tweet WHERE time < datetime("now", ?) AND removed = 0', (datetime_modifier,))
+	cur.execute('SELECT id, time FROM tweet WHERE time < datetime("now", ?) AND removed = ?', (datetime_modifier, S_TO_DELETE))
 	tweets = cur.fetchall()
 	print("Tweets to delete: %d" % len(tweets))
 	try:
@@ -126,7 +135,7 @@ def delete_tweets():
 			deleted.append(i)
 	print("Deleted tweets: %d" % len(deleted))
 	print("Updating database...")
-	cur.executemany('UPDATE tweet SET removed = 1 WHERE id = ?', deleted)
+	cur.executemany('UPDATE tweet SET removed = :removed WHERE id = :id', deleted)
 	conn.commit()
 	signal.signal(signal.SIGINT, signal.SIG_DFL)
 
@@ -187,13 +196,17 @@ def status():
 	print()
 	print("-----------------------------------")
 	cur.execute("SELECT count(*) FROM tweet")
-	print("Known tweets:             %d" % cur.fetchone())
-	cur.execute("SELECT count(*) FROM tweet WHERE removed = 1")
-	print("Deleted tweets:           %d" % cur.fetchone())
-	cur.execute("SELECT count(*) FROM tweet WHERE removed = 0")
-	print("Tweets that still exist:  %d" % cur.fetchone())
-	cur.execute('SELECT count(*) FROM tweet WHERE time < datetime("now", ?) AND removed = 0', (datetime_modifier,))
-	print("Tweets to be deleted:     %d" % cur.fetchone())
+	print("Known tweets:                %d" % cur.fetchone())
+	cur.execute("SELECT count(*) FROM tweet WHERE removed = ?", (S_TO_DELETE,))
+	print("Tweets that can be deleted:  %d" % cur.fetchone())
+	cur.execute("SELECT count(*) FROM tweet WHERE removed = ?", (S_DELETED,))
+	print("Tweets already deleted:      %d" % cur.fetchone())
+	cur.execute("SELECT count(*) FROM tweet WHERE removed = ?", (S_TO_KEEP,))
+	print("Tweets we should keep:       %d" % cur.fetchone())
+	cur.execute("SELECT count(*) FROM tweet WHERE removed = ?", (S_CANNOT_DELETE,))
+	print("Tweets we failed to delete:  %d" % cur.fetchone())
+	cur.execute('SELECT count(*) FROM tweet WHERE time < datetime("now", ?) AND removed = ?', (datetime_modifier,S_TO_DELETE))
+	print("Tweets to be deleted now:    %d" % cur.fetchone())
 	print("-----------------------------------")
 	print()
 

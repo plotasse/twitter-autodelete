@@ -130,10 +130,13 @@ def delete_tweets():
 		stopped = True
 	# ignore any new interruption, we need to update the database
 	signal.signal(signal.SIGINT, signal.SIG_IGN)
+	count = 0
 	for i in r:
 		if i is not None:
 			deleted.append(i)
-	print("Deleted tweets: %d" % len(deleted))
+			if i["removed"] == S_DELETED:
+				count += 1
+	print("Deleted tweets: %d" % count)
 	print("Updating database...")
 	cur.executemany('UPDATE tweet SET removed = :removed WHERE id = :id', deleted)
 	conn.commit()

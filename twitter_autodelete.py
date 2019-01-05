@@ -100,7 +100,7 @@ def delete_tweet(tweet):
 		print("delete %d [%s]: ok" % (i,t))
 		return {"id": i, "removed": S_DELETED}
 	except tweepy.error.TweepError as e:
-		if e.api_code == 144:
+		if e.api_code in {34, 144}:
 			print("delete %d [%s]: already deleted" % (i,t))
 			return {"id": i, "removed": S_DELETED}
 		elif e.api_code == 63:

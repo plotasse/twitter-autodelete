@@ -195,6 +195,12 @@ def update_tweets():
 	print("Updating database...")
 	conn.commit()
 
+def save_tweets(tweets):
+	global conn, cur
+	data = [(S_TO_KEEP,S_DELETED,int(t.split("/")[-1])) for t in tweets]
+	cur.executemany("UPDATE tweet SET removed = ? WHERE removed != ? AND id = ?", data)
+	conn.commit()
+
 def status():
 	print()
 	print("-----------------------------------")
@@ -221,6 +227,12 @@ if __name__ == "__main__":
 			delete_tweets()
 		elif len(sys.argv) == 2 and sys.argv[1] == "update-tweets":
 			update_tweets()
+		elif len(sys.argv) >= 3 and sys.argv[1] == "save-tweets":
+			status()
+			update_tweets()
+			status()
+			save_tweets(sys.argv[2:])
+			status()
 		elif len(sys.argv) == 2 and sys.argv[1] == "status":
 			status()
 		elif len(sys.argv) == 2 and sys.argv[1] == "setup":
@@ -237,6 +249,7 @@ if __name__ == "__main__":
 			print("\t\tload-archive <filename>")
 			print("\t\tdelete-tweets")
 			print("\t\tupdate-tweets")
+			print("\t\tsave-tweets <tweet-id>...")
 			print("\t\tstatus")
 			print("If no command is specified, update and delete tweets")
 	except KeyboardInterrupt:
